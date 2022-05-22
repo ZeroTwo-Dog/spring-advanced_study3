@@ -120,4 +120,78 @@ public class ExecutionTest {
     Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
 
   }
+
+
+  @Test
+  void typeExactMatch() {
+    pointcut.setExpression("execution(* hello.aop.member.MemberServiceImpl.*(..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+
+  }
+
+
+  @Test
+  void typeMatchSuperType() {
+    //부모타입으로 해도 매칭이됨
+    pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+
+  }
+
+  @Test
+  void typeMatchInternal() throws NoSuchMethodException {
+    //MemberServiceImpl 하위 내부 메소드는 부모에 없는 메소드는 불가능하다
+    pointcut.setExpression("execution(* hello.aop.member.MemberService.*(..))");
+    Method internal = MemberServiceImpl.class.getMethod("internal", String.class);
+
+    Assertions.assertThat(pointcut.matches(internal, MemberServiceImpl.class)).isFalse();
+
+  }
+
+
+  //String 타입의 파라미터 허용
+  // (String)
+  @Test
+  void argsMatch() {
+    pointcut.setExpression("execution(* *(String))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+
+
+  }
+
+
+  // 파라미터 없음
+  // ()
+  @Test
+  void argsMatchNoArgs() {
+    pointcut.setExpression("execution(* *())");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isFalse();
+
+
+  }
+
+
+  // 정확히 하나의 파라미터 허요으, 모든 타입 허용
+  // (Xxx)
+  @Test
+  void argsMatchStar() {
+    pointcut.setExpression("execution(* *(*))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+  }
+
+  // 파라미터 갯수와 무관하게 모든 파라미터 허용
+  // (Xxx), (Xxx, xxX), ()
+  @Test
+  void argsMatchAll() {
+    pointcut.setExpression("execution(* *(..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+  }
+
+  // String 타입으로 시작, 파라미터 갯수와 무관하게 모든 파라미터 허용
+  // (String), (String, xxX() ...
+  @Test
+  void argsMatchComplex() {
+    pointcut.setExpression("execution(* *(String, ..))");
+    Assertions.assertThat(pointcut.matches(helloMethod, MemberServiceImpl.class)).isTrue();
+  }
 }
