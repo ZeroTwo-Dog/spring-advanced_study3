@@ -22,6 +22,7 @@ public class CallServiceV2 {
 
   public void external () {
     log.info("call external");
+    //싱글톤으로 컨테이너에 적재된 값을 꺼내 쓰는것
     CallServiceV2 callServiceV2 = callServiceProvider.getObject();
     callServiceV2.internal(); //내부 메소드 호출
   }
